@@ -358,57 +358,47 @@ install-server: install-server-generic
 
 install-common: build
 	./init/adduser.sh ${OSSEC_USER} ${OSSEC_USER_MAIL} ${OSSEC_USER_REM} ${OSSEC_GROUP} ${PREFIX}
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs
-	install -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} /dev/null ${PREFIX}/logs/ossec.log
+	mkdir -p ${PREFIX}/ 
+	(cd ${PREFIX}; mkdir -p logs bin lua lua/{native,compiled})
 
-	install -d -m 0550 -o root -g 0 ${PREFIX}/bin
-	install -d -m 0550 -o root -g 0 ${PREFIX}/lua
-	install -d -m 0550 -o root -g 0 ${PREFIX}/lua/native
-	install -d -m 0550 -o root -g 0 ${PREFIX}/lua/compiled
-	install -m 0550 -o root -g 0 ossec-logcollector ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-syscheckd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-execd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 manage_agents ${PREFIX}/bin
-	install -m 0550 -o root -g 0 external/lua/src/ossec-lua ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 external/lua/src/ossec-luac ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 ../contrib/util.sh ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 ${OSSEC_CONTROL_SRC} ${PREFIX}/bin/ossec-control
+	cp ossec-logcollector ${PREFIX}/bin
+	cp ossec-syscheckd ${PREFIX}/bin
+	cp ossec-execd ${PREFIX}/bin
+	cp manage_agents ${PREFIX}/bin
+	cp external/lua/src/ossec-lua ${PREFIX}/bin/
+	cp external/lua/src/ossec-luac ${PREFIX}/bin/
+	cp ../contrib/util.sh ${PREFIX}/bin/
+	cp ${OSSEC_CONTROL_SRC} ${PREFIX}/bin/ossec-control
 
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/queue
-	install -d -m 0770 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/alerts
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/ossec
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/syscheck
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/diff
+	(cd ${PREFIX}; mkdir -p queue/{alerts,ossec,syscheck,diff})
+	(cd ${PREFIX}; mkdir -p etc/shared tmp )
 
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/etc
-	install -m 0440 -o root -g ${OSSEC_GROUP} /etc/localtime ${PREFIX}/etc
-
-	install -d -m 1550 -o root -g ${OSSEC_GROUP} ${PREFIX}/tmp
+	cp /etc/localtime ${PREFIX}/etc
 
 ifneq (,$(wildcard /etc/TIMEZONE))
-	install -m 440 -o root -g ${OSSEC_GROUP} /etc/TIMEZONE ${PREFIX}/etc/
+	cp /etc/TIMEZONE ${PREFIX}/etc/
 endif
 # Solaris Needs some extra files
 ifeq (${uname_S},SunOS)
 	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/usr/share/lib/zoneinfo/
 	install -m 0440 -o root -g ${OSSEC_GROUP} /usr/share/lib/zoneinfo/* ${PREFIX}/usr/share/lib/zoneinfo/
 endif
-	install -m 0640 -o root -g ${OSSEC_GROUP} -b ../etc/internal_options.conf ${PREFIX}/etc/
+	cp ../etc/internal_options.conf ${PREFIX}/etc/
 ifeq (,$(wildcard ${PREFIX}/etc/local_internal_options.conf))
-	install -m 0640 -o root -g ${OSSEC_GROUP} ../etc/local_internal_options.conf ${PREFIX}/etc/local_internal_options.conf
+	cp ../etc/local_internal_options.conf ${PREFIX}/etc/local_internal_options.conf
 endif
 ifeq (,$(wildcard ${PREFIX}/etc/client.keys))
-	install -m 0640 -o root -g ${OSSEC_GROUP} /dev/null ${PREFIX}/etc/client.keys
+	cp /dev/null ${PREFIX}/etc/client.keys
 endif
 ifeq (,$(wildcard ${PREFIX}/etc/ossec.conf))
 ifneq (,$(wildcard ../etc/ossec.mc))
-	install -m 0640 -o root -g ${OSSEC_GROUP} ../etc/ossec.mc ${PREFIX}/etc/ossec.conf
+	cp ../etc/ossec.mc ${PREFIX}/etc/ossec.conf
 else
-	install -m 0640 -o root -g ${OSSEC_GROUP} ${OSSEC_CONF_SRC} ${PREFIX}/etc/ossec.conf
+	cp ${OSSEC_CONF_SRC} ${PREFIX}/etc/ossec.conf
 endif
 endif
 
+<<<<<<< HEAD
 	install -d -m 0770 -o root -g ${OSSEC_GROUP} ${PREFIX}/etc/shared
 	install -m 0640 -o root -g ${OSSEC_GROUP} rootcheck/db/*.txt ${PREFIX}/etc/shared/
 
@@ -421,61 +411,54 @@ endif
 
 	install -m 0550 -o root -g ${OSSEC_GROUP} ../active-response/*.sh ${PREFIX}/active-response/bin/
 	install -m 0550 -o root -g ${OSSEC_GROUP} ../active-response/firewalls/*.sh ${PREFIX}/active-response/bin/
+=======
+	cp rootcheck/db/*.txt ${PREFIX}/etc/shared/
+	(cd ${PREFIX}; mkdir -p active-response/bin agentless .ssh var/run)
+	cp agentlessd/scripts/* ${PREFIX}/agentless/
+>>>>>>> f3845348... make debian
 
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/var
-	install -d -m 0770 -o root -g ${OSSEC_GROUP} ${PREFIX}/var/run
+	cp ../active-response/*.sh ${PREFIX}/active-response/bin/
+	cp ../active-response/firewalls/*.sh ${PREFIX}/active-response/bin/
 
 	./init/fw-check.sh execute
 
 
 
 install-server-generic: install-common
-	install -m 0660 -o ${OSSEC_USER} -g ${OSSEC_GROUP} /dev/null ${PREFIX}/logs/active-responses.log
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs/archives
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs/alerts
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/logs/firewall
+	cp /dev/null ${PREFIX}/logs/active-responses.log
+	(cd ${PREFIX}; mkdir -p logs/{archives,alerts,firewall})
 
-	install -m 0550 -o root -g 0 ossec-agentlessd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-analysisd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-monitord ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-reportd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-maild ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-remoted ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-logtest ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-csyslogd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-authd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-dbd ${PREFIX}/bin
-	install -m 0550 -o root -g 0 ossec-makelists ${PREFIX}/bin
-	install -m 0550 -o root -g 0 verify-agent-conf ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 clear_stats ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 list_agents ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 ossec-regex ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 syscheck_update ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 agent_control ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 syscheck_control ${PREFIX}/bin/
-	install -m 0550 -o root -g 0 rootcheck_control ${PREFIX}/bin/
+	cp ossec-agentlessd ${PREFIX}/bin
+	cp ossec-analysisd ${PREFIX}/bin
+	cp ossec-monitord ${PREFIX}/bin
+	cp ossec-reportd ${PREFIX}/bin
+	cp ossec-maild ${PREFIX}/bin
+	cp ossec-remoted ${PREFIX}/bin
+	cp ossec-logtest ${PREFIX}/bin
+	cp ossec-csyslogd ${PREFIX}/bin
+	cp ossec-authd ${PREFIX}/bin
+	cp ossec-dbd ${PREFIX}/bin
+	cp ossec-makelists ${PREFIX}/bin
+	cp verify-agent-conf ${PREFIX}/bin/
+	cp clear_stats ${PREFIX}/bin/
+	cp list_agents ${PREFIX}/bin/
+	cp ossec-regex ${PREFIX}/bin/
+	cp syscheck_update ${PREFIX}/bin/
+	cp agent_control ${PREFIX}/bin/
+	cp syscheck_control ${PREFIX}/bin/
+	cp rootcheck_control ${PREFIX}/bin/
 
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/stats
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/rules
+	(cd ${PREFIX}; mkdir -p stats rules)
 ifneq (,$(wildcard ${PREFIX}/rules/local_rules.xml))
 	cp ${PREFIX}/rules/local_rules.xml ${PREFIX}/rules/local_rules.xml.installbackup
-	install -m 0640 -o root -g ${OSSEC_GROUP} -b ../etc/rules/*.xml ${PREFIX}/rules
-	install -m 0640 -o root -g ${OSSEC_GROUP} ${PREFIX}/rules/local_rules.xml.installbackup ${PREFIX}/rules/local_rules.xml
+	cp ../etc/rules/*.xml ${PREFIX}/rules
+	cp ${PREFIX}/rules/local_rules.xml.installbackup ${PREFIX}/rules/local_rules.xml
 	rm ${PREFIX}/rules/local_rules.xml.installbackup
 else
-	install -m 0640 -o root -g ${OSSEC_GROUP} -b ../etc/rules/*.xml ${PREFIX}/rules
+	cp ../etc/rules/*.xml ${PREFIX}/rules
 endif
-
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/fts
-
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/rootcheck
-
-	install -d -m 0750 -o ${OSSEC_USER_REM} -g ${OSSEC_GROUP} ${PREFIX}/queue/agent-info
-	install -d -m 0750 -o ${OSSEC_USER} -g ${OSSEC_GROUP} ${PREFIX}/queue/agentless
-
-	install -d -m 0750 -o ${OSSEC_USER_REM} -g ${OSSEC_GROUP} ${PREFIX}/queue/rids
-
-	install -m 0640 -o root -g ${OSSEC_GROUP} ../etc/decoder.xml ${PREFIX}/etc/
+	(cd ${PREFIX}; mkdir -p queue/{fts,rootcheck,agent-info,agentless,rids})
+	cp ../etc/decoder.xml ${PREFIX}/etc/
 
 	rm -f ${PREFIX}/etc/shared/merged.mg
 

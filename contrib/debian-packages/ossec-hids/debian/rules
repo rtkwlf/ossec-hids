@@ -11,7 +11,8 @@
 # build-arch and build-indep targets  by Bill Allombert 2001
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
+export PREFIX=debian/ossec-hids-server/var/ossec
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
@@ -22,8 +23,13 @@ export DH_OPTIONS
 
 override_dh_auto_configure:
 
+#make TARGET=server PREFIX=../debian/ossec-hids-server/var/ossec -j8 install
 override_dh_auto_build:
-	$(MAKE) all
+	$(MAKE) -C src -j8 TARGET=server 
+
+override_dh_auto_install:
+	echo prefix:${PREFIX}
+	$(MAKE) -C src -j8 TARGET=server install
 
 override_dh_auto_clean:
-	$(MAKE) clean
+	$(MAKE) -C src clean
