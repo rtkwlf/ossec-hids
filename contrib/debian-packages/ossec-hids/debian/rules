@@ -12,7 +12,7 @@
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
-export PREFIX=debian/ossec-hids-server/var/ossec
+export PREFIX=debian/tmp/var/ossec
 
 # This has to be exported to make some magic below work.
 export DH_OPTIONS

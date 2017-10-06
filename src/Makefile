@@ -398,24 +398,9 @@ else
 endif
 endif
 
-<<<<<<< HEAD
-	install -d -m 0770 -o root -g ${OSSEC_GROUP} ${PREFIX}/etc/shared
-	install -m 0640 -o root -g ${OSSEC_GROUP} rootcheck/db/*.txt ${PREFIX}/etc/shared/
-
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/active-response
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/active-response/bin
-	install -d -m 0550 -o root -g ${OSSEC_GROUP} ${PREFIX}/agentless
-	install -m 0550 -o root -g ${OSSEC_GROUP} agentlessd/scripts/* ${PREFIX}/agentless/
-
-	install -d -m 0700 -o root -g ${OSSEC_GROUP} ${PREFIX}/.ssh
-
-	install -m 0550 -o root -g ${OSSEC_GROUP} ../active-response/*.sh ${PREFIX}/active-response/bin/
-	install -m 0550 -o root -g ${OSSEC_GROUP} ../active-response/firewalls/*.sh ${PREFIX}/active-response/bin/
-=======
 	cp rootcheck/db/*.txt ${PREFIX}/etc/shared/
 	(cd ${PREFIX}; mkdir -p active-response/bin agentless .ssh var/run)
 	cp agentlessd/scripts/* ${PREFIX}/agentless/
->>>>>>> f3845348... make debian
 
 	cp ../active-response/*.sh ${PREFIX}/active-response/bin/
 	cp ../active-response/firewalls/*.sh ${PREFIX}/active-response/bin/
